@@ -2,8 +2,6 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
-
 use std::cmp::Ord;
 use std::default::Default;
 
@@ -38,6 +36,22 @@ where
 
     pub fn add(&mut self, value: T) {
         //TODO
+        self.items.push(value);
+        self.count += 1;
+        let mut index = self.count;
+
+        while index != 0 {
+            let child = self.smallest_child_idx(index);
+            if child != 0 {
+                if (self.comparator)(&self.items[child], &self.items[index]) {
+                    let (first_part, second_part) = self.items.split_at_mut(index + 1);
+                    std::mem::swap(&mut first_part[index], &mut second_part[child - index - 1]);
+                } else {
+                    break;
+                }
+            }
+            index = self.parent_idx(index);
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -58,7 +72,19 @@ where
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
         //TODO
-		0
+		if self.children_present(idx) {
+            if self.right_child_idx(idx) <= self.count {
+                if (self.comparator)(&self.items[self.left_child_idx(idx)], &self.items[self.right_child_idx(idx)]) {
+                    self.left_child_idx(idx)
+                } else {
+                    self.right_child_idx(idx)
+                }
+            } else {
+                self.left_child_idx(idx)
+            }
+        } else {
+            0
+        }
     }
 }
 
@@ -79,13 +105,35 @@ where
 
 impl<T> Iterator for Heap<T>
 where
-    T: Default,
+    T: Default + Clone,
 {
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
         //TODO
-		None
+		if self.count == 0 {
+            None
+        } else {
+            let res = Some(self.items[1].clone());
+            self.items[1] = self.items[self.count].clone();
+            self.items.pop();
+            self.count -= 1;
+
+            let mut index = 1usize;
+
+            while self.children_present(index) {
+                let child = self.smallest_child_idx(index);
+                if (self.comparator)(&self.items[child], &self.items[index]) {
+                    let (first_part, second_part) = self.items.split_at_mut(index + 1);
+                    std::mem::swap(&mut first_part[index], &mut second_part[child - index - 1]);
+                } else {
+                    break;
+                }
+                index = child;
+            }
+
+            res
+        }
     }
 }
 

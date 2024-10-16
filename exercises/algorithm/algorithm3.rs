@@ -3,10 +3,46 @@
 	This problem requires you to implement a sorting algorithm
 	you can use bubble sorting, insertion sorting, heap sorting, etc.
 */
-// I AM NOT DONE
-
-fn sort<T>(array: &mut [T]){
+fn sort<T: PartialOrd + Clone>(array: &mut [T]) {
 	//TODO
+    let length = array.len();
+    if length <= 1 {
+        return;
+    }
+
+    let mid = length /2 ;
+
+    sort(&mut array[..mid]);
+    sort(&mut array[mid..]);
+
+    let (left, right) = array.split_at(mid);
+    let mut tmp: Vec<T> = Vec::with_capacity(length);
+
+    let (mut i, mut j) = (0, 0);
+
+    while let (Some(left_val), Some(right_val)) = (left.get(i), right.get(j)) {
+        if left_val <= right_val {
+            tmp.push(left_val.clone());
+            i += 1;
+        } else {
+            tmp.push(right_val.clone());
+            j += 1;
+        }
+    }
+
+    while let Some(left_val) = left.get(i) {
+        tmp.push(left_val.clone());
+        i += 1;
+    }
+
+    while let Some(right_val) = right.get(j) {
+        tmp.push(right_val.clone());
+        j += 1;
+    }
+
+    for (i, val) in tmp.iter().enumerate() {
+        array[i] = val.clone();
+    }
 }
 #[cfg(test)]
 mod tests {
